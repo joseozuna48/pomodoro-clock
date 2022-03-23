@@ -1,0 +1,72 @@
+*{
+    box-sizing: border-box;
+    padding: 0;
+    padding: 0;
+}
+
+body{
+    background-color: 	   rgb(140, 175, 245);
+    font-family: 'Roboto', sans-serif;
+}
+
+#root{
+    position: fixed;
+    /* top: 33%;
+    left: 33%; */
+    background-color:   red;
+    border-radius: 5px;
+    width: 50%;
+    height: 315px;
+    
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    height: 100%;
+    text-align: center;
+}
+
+main > *{
+    padding: 10px;
+}
+
+#settings{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.session-label{
+    padding: 10px;   
+    font-size: 40px;
+}
+
+#timer-label{
+    padding: 10px;
+    border: solid black 5px;
+    border-radius: 10%;
+    align-self: center;
+}
+
+#break-label , #session-label{
+    font-size: 20px;
+    border: solid black 5px;
+    border-radius: 5px;
+    padding:5px;
+}
+
+button{
+    font-size: 20px;
+    padding: 0px 10px 0px 10px;
+    margin: 5px;
+    margin-bottom: 0px;
+    background: transparent;
+    border: none;
+}
+
+button:hover{
+    cursor: pointer;
+}
+
