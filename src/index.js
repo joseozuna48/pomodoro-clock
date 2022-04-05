@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import "./index.css";
+import audio from "./static/beep.mp3";
 
 
 
@@ -66,6 +67,7 @@ class App extends React.Component{
     }
     this.timerID = 0;
     this.pause = true;
+    this.audioRef = React.createRef();
   
 
     this.counter = this.counter.bind(this);
@@ -74,18 +76,27 @@ class App extends React.Component{
     this.sessionHandler = this.sessionHandler.bind(this);
   }
 
+  componentDidMount(){
+    console.log(this.beep);
+  }
+
   counter(){
     this.pause = !this.pause;
     if(!this.pause && this.state.timer > 0){
+
       this.timerID = setInterval( ()=>{
         if(this.state.timer > 0){
           this.setState( (state)=>({timer:state.timer-1, display:this.displayTime(state.timer-1)}));
+          if(this.state.timer === 0){
+            this.audioRef.current.play();
+          }
         }else{ 
           // This functiones manages when the timer reaches zero in case it is a break or a session.
           (!this.state.breakTime) ? this.setState({timer: this.state.break*60,breakTime:true,display:this.displayTime(this.state.break*60)}) :
           this.setState({timer: this.state.length*60,breakTime:false,display:this.displayTime(this.state.length*60)});
         }  
       } ,1000);
+
     }else{
       clearInterval(this.timerID);  
     }
@@ -95,6 +106,7 @@ class App extends React.Component{
     this.setState({timer:1500,break:5,length:25,display:"25:00",breakTime:false});
     this.pause = true;
     clearInterval(this.timerID);
+    this.audioRef.current.load();
   }
 
   breakHandler(btnType){
@@ -159,9 +171,12 @@ class App extends React.Component{
         <div id="settings">
           <BreakSection break = {this.state.break} breakHandler = {this.breakHandler} />
           <SessionSection length={this.state.length} sessionHandler = {this.sessionHandler} />
-
         </div>  
         <TimerSection display={this.state.display} update={this.counter} reset = {this.reset} break={this.state.breakTime} />
+
+        <audio ref={this.audioRef} id="beep">
+          <source src={audio} type="audio/mpeg"></source>
+        </audio>
 
       </main>
       
