@@ -40,7 +40,7 @@ function TimerSection(props){
 
   return (
     <div id="timer-label" className="border border-5 border-warning rounded p-2 m-3 fs-5">
-      Session
+      {props.break ? "Break":"Session"} 
       <div id="time-left">{props.display}</div>
       <button id="start_stop" className="btn btn-warning me-2" onClick={props.update}>
       <i className="fa-solid fa-play"></i> <i className="fa-solid fa-pause"></i>
@@ -66,6 +66,7 @@ class App extends React.Component{
     }
     this.timerID = 0;
     this.pause = true;
+  
 
     this.counter = this.counter.bind(this);
     this.reset = this.reset.bind(this);
@@ -74,13 +75,15 @@ class App extends React.Component{
   }
 
   counter(){
-    this.pause =  !this.pause;
-    if(!this.pause && this.state.timer >= 0){
+    this.pause = !this.pause;
+    if(!this.pause && this.state.timer > 0){
       this.timerID = setInterval( ()=>{
         if(this.state.timer > 0){
           this.setState( (state)=>({timer:state.timer-1, display:this.displayTime(state.timer-1)}));
-        }else{
-          clearInterval(this.timerID);
+        }else{ 
+          // This functiones manages when the timer reaches zero in case it is a break or a session.
+          (!this.state.breakTime) ? this.setState({timer: this.state.break*60,breakTime:true,display:this.displayTime(this.state.break*60)}) :
+          this.setState({timer: this.state.length*60,breakTime:false,display:this.displayTime(this.state.length*60)});
         }  
       } ,1000);
     }else{
@@ -89,7 +92,7 @@ class App extends React.Component{
   }
 
   reset(){
-    this.setState({timer:1500,break:5,length:25,display:"25:00"});
+    this.setState({timer:1500,break:5,length:25,display:"25:00",breakTime:false});
     this.pause = true;
     clearInterval(this.timerID);
   }
@@ -97,9 +100,19 @@ class App extends React.Component{
   breakHandler(btnType){
     if(this.pause){
       if(btnType === "up" && this.state.break <=59){
-        this.setState( (state)=> ({break :state.break +1}) );
+        this.setState( (state)=>(
+          {
+           break :state.break +1,
+           timer: (state.breakTime)? ((state.break+1)*60): state.timer, 
+           display: (state.breakTime)? this.displayTime( ((state.break+1)*60) ) : state.display 
+          }) );
       }else if(btnType === "down" && this.state.break>=2){
-        this.setState( (state)=> ({break: state.break-1}) );
+        this.setState( (state)=>(
+          {
+            break: state.break-1, 
+            timer: (state.breakTime)? ((state.break-1)*60):state.timer,
+             display: (state.breakTime)? this.displayTime( ((state.break-1)*60) ):state.display  
+            }));
       }
     }
   }
@@ -107,9 +120,20 @@ class App extends React.Component{
   sessionHandler(btnType){
     if(this.pause){
       if(btnType === "up" && this.state.length <=59){
-        this.setState( (state)=> ({timer : (state.length+1)*60,length:state.length +1, display:this.displayTime((state.length+1)*60)}) );
+        this.setState( (state)=>(
+          {
+            length: state.length +1,
+            timer : (!state.breakTime)? (state.length+1)*60: state.timer,
+            display: (!state.breakTime)?  this.displayTime((state.length+1)*60) : state.display
+            }) );
+
       }else if( btnType === "down" && this.state.length>=2 ){
-        this.setState( (state)=> ({timer: (state.length-1)*60,length:state.length -1 ,display:this.displayTime((state.length-1)*60)}));
+        this.setState( (state)=>(
+          {
+            length:state.length -1 ,
+            timer: (!state.breakTime)? (state.length-1)*60 :state.timer,
+            display: (!state.breakTime)? this.displayTime((state.length-1)*60): state.display
+          }));
       }
     }
   }
@@ -137,7 +161,7 @@ class App extends React.Component{
           <SessionSection length={this.state.length} sessionHandler = {this.sessionHandler} />
 
         </div>  
-        <TimerSection display={this.state.display} update={this.counter} reset = {this.reset}/>
+        <TimerSection display={this.state.display} update={this.counter} reset = {this.reset} break={this.state.breakTime} />
 
       </main>
       
