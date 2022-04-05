@@ -41,7 +41,7 @@ function TimerSection(props){
   return (
     <div id="timer-label" className="border border-5 border-warning rounded p-2 m-3 fs-5">
       Session
-      <div id="time-left">{props.timer}</div>
+      <div id="time-left">{props.display}</div>
       <button id="start_stop" className="btn btn-warning me-2" onClick={props.update}>
       <i className="fa-solid fa-play"></i> <i className="fa-solid fa-pause"></i>
       </button>
@@ -58,9 +58,11 @@ class App extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      timer : 25,
+      timer : 1500,
       break : 5,
-      length: 25
+      length: 25,
+      display: "25:00",
+      breakTime: false
     }
     this.timerID = 0;
     this.pause = true;
@@ -76,7 +78,7 @@ class App extends React.Component{
     if(!this.pause && this.state.timer >= 0){
       this.timerID = setInterval( ()=>{
         if(this.state.timer > 0){
-          this.setState( (state)=>({timer:state.timer-1}))
+          this.setState( (state)=>({timer:state.timer-1, display:this.displayTime(state.timer-1)}));
         }else{
           clearInterval(this.timerID);
         }  
@@ -87,16 +89,16 @@ class App extends React.Component{
   }
 
   reset(){
-    this.setState({timer:25,break:5,length:25});
+    this.setState({timer:1500,break:5,length:25,display:"25:00"});
     this.pause = true;
     clearInterval(this.timerID);
   }
 
   breakHandler(btnType){
     if(this.pause){
-      if(btnType === "up"){
+      if(btnType === "up" && this.state.break <=59){
         this.setState( (state)=> ({break :state.break +1}) );
-      }else if(this.state.break>=2){
+      }else if(btnType === "down" && this.state.break>=2){
         this.setState( (state)=> ({break: state.break-1}) );
       }
     }
@@ -104,12 +106,23 @@ class App extends React.Component{
 
   sessionHandler(btnType){
     if(this.pause){
-      if(btnType === "up"){
-        this.setState( (state)=> ({timer :state.length +1,length:state.length +1}) );
-      }else if(this.state.timer>=2){
-        this.setState( (state)=> ({timer: state.timer-1,length:state.timer -1}) );
+      if(btnType === "up" && this.state.length <=59){
+        this.setState( (state)=> ({timer : (state.length+1)*60,length:state.length +1, display:this.displayTime((state.length+1)*60)}) );
+      }else if( btnType === "down" && this.state.length>=2 ){
+        this.setState( (state)=> ({timer: (state.length-1)*60,length:state.length -1 ,display:this.displayTime((state.length-1)*60)}));
       }
     }
+  }
+
+  displayTime(time){
+    let minutes = parseInt(time/60);
+    let seconds = time % 60;
+
+    // Condintionals added in case the result is a one digit number and a zero is needed to
+    // display the result in the same format a clock would.
+    let result = "" + ( (minutes <10 )? ("0"+minutes) : (minutes) ) + ":" + ( (seconds <10) ? ("0"+seconds): seconds );
+
+    return result;
   }
 
   render(){
@@ -120,11 +133,11 @@ class App extends React.Component{
         </div>
 
         <div id="settings">
-          <BreakSection break = {this.state.break} breakHandler = {this.breakHandler}/>
+          <BreakSection break = {this.state.break} breakHandler = {this.breakHandler} />
           <SessionSection length={this.state.length} sessionHandler = {this.sessionHandler} />
 
         </div>  
-        <TimerSection timer={this.state.timer} update={this.counter} reset = {this.reset}/>
+        <TimerSection display={this.state.display} update={this.counter} reset = {this.reset}/>
 
       </main>
       
