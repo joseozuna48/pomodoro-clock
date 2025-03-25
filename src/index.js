@@ -9,7 +9,7 @@ import audio from "./static/beep.mp3";
 
 function BreakSection(props){
   return (
-    <div className="border border-5 border-warning rounded p-2 m-3 fs-5" id="break-label">
+    <div className="border border-5 border-warning rounded p-2 m-1 m-md-3 fs-5" id="break-label">
     Break Length
       <div id="break-length">{props.break}</div>
       <button id="break-decrement" className="btn btn-warning me-2" onClick={(e) => props.breakHandler("down")}>
@@ -163,7 +163,7 @@ class App extends React.Component{
 
   render(){
     return(
-      <main className='col-6 mt-5'>
+      <main className='col-10 mt-5 col-md-6'>
         <div className='session-label display-3'>
           Pomodoro Clock
         </div>
